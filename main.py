@@ -1,5 +1,11 @@
-from pdf import extract_invoice_data
+import uvicorn
+from fastapi import FastAPI
 
-invoice_data = extract_invoice_data('files/invoice.pdf')
+app = FastAPI(
+    title="FastAPI Backend",
+    description="FastAPI backend",
+    version="0.1.0",
+)
 
-print(invoice_data)
+if __name__ == "__main__":
+    uvicorn.run(app)
