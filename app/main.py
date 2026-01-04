@@ -1,8 +1,8 @@
 import uvicorn
 from fastapi import FastAPI
 
-from .config.database import Base, engine
-from .api.v1 import routers
+from app.config.database import Base, engine
+from app.api.v1 import routers
 
 import app.models
 

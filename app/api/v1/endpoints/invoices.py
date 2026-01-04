@@ -2,25 +2,27 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
 
-from app.schemas.invoices import Invoice, InvoiceCreate, InvoiceResponse, InvoiceUpdate
-from app.crud import invoices as crud
+from app.schemas.invoices import InvoiceCreate, InvoiceResponse, InvoiceUpdate
+from app.crud import invoices as crud, users
 from app.api.deps import get_db
 
 router = APIRouter()
 
 @router.get("/", response_model=List[InvoiceResponse])
-def read_invoices(db: Session = Depends(get_db)):
-    return crud.get_invoices(db)
+def read_invoices(limit: int = 10, offset: int = 0, db: Session = Depends(get_db)):
+    return crud.get_invoices(db, limit, offset)
 
-@router.get("/{invoice_id}", response_model=Invoice)
+@router.get("/{invoice_id}", response_model=InvoiceResponse)
 def read_invoice(invoice_id: int, db: Session = Depends(get_db)):
     return crud.get_invoice(db, invoice_id)
 
 @router.post("/", response_model=InvoiceResponse)
-def add_invoice(invoice: InvoiceCreate, db: Session = Depends(get_db)):
-    return crud.create_invoice(db, invoice)
+def add_invoice(payload: InvoiceCreate, db: Session = Depends(get_db)):
+    if not users.get_user(payload.user_id, db):
+        raise HTTPException(status_code=404, detail="User not found")
+    return crud.create_invoice(db, payload)
 
-@router.put("/{invoice_id}", response_model=Invoice)
+@router.patch("/{invoice_id}", response_model=InvoiceResponse)
 def update_invoice(
     invoice_id: int,
     payload: InvoiceUpdate, 
