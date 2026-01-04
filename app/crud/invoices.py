@@ -3,18 +3,18 @@ from sqlalchemy.orm import Session
 from app.models.invoices import Invoice
 from app.schemas.invoices import InvoiceCreate, InvoiceUpdate
 
-def get_invoices(db: Session):
-    return db.query(Invoice).all()
+def get_invoices(db: Session, limit: int, offset: int):
+    return db.query(Invoice).limit(limit).offset(offset).all()
 
 def get_invoice(db: Session, invoice_id: int):
     return db.query(Invoice).where(Invoice.id == invoice_id).first()
     
-def create_invoice(db: Session, invoice: InvoiceCreate):
-    db_invoice = Invoice(**invoice.model_dump()) 
-    db.add(db_invoice)
+def create_invoice(db: Session, payload: InvoiceCreate):
+    invoice = Invoice(**payload.model_dump()) 
+    db.add(invoice)
     db.commit()
-    db.refresh(db_invoice)
-    return db_invoice
+    db.refresh(invoice)
+    return invoice
 
 def update_invoice(
     db: Session,
@@ -30,9 +30,10 @@ def update_invoice(
     
     for field, value in data.items():
         setattr(invoice, field, value.value if hasattr(value, "value") else value)
-    
-    db.refresh(invoice)
+
     db.commit()
+    db.refresh(invoice)
+    
     return invoice
 
 def delete_invoice(db: Session, invoice_id: int):
