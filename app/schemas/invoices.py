@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, PositiveInt
 from enum import Enum
 from typing import Optional
 
@@ -9,7 +9,7 @@ class StatusEnum(str, Enum):
 
 class InvoiceCreate(BaseModel):
     status: StatusEnum = StatusEnum.PEND
-    user_id: int
+    user_id: PositiveInt
     
 class InvoiceUpdate(BaseModel):
     status: Optional[StatusEnum] = None

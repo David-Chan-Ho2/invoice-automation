@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.models.users import User
 from app.api.deps import get_db
-from app.schemas.users import UserCreate, UserResponse
+from app.schemas.users import UserCreate, UserResponse, UserUpdate
 import app.crud.users as crud
 
 router = APIRouter()
@@ -14,7 +13,32 @@ def get_users(db: Session = Depends(get_db)):
     return crud.get_users(db)
 
 @router.post("/", response_model=UserResponse)
-def create_user(payload: UserCreate, db: Session = Depends(get_db)):
-    return crud.create_user(db, payload)
+def create_user(
+    payload: UserCreate, 
+    db: Session = Depends(get_db)
+):
+    user = crud.create_user(db, payload)
+    if not user:
+        raise HTTPException(status_code=404, detail="User name already exists")
+    return user
 
+@router.patch("/{user_id}", response_model=UserResponse)
+def update_user(
+    user_id: int, 
+    payload: UserUpdate, 
+    db: Session = Depends(get_db)
+):
+    user = crud.update_user(db, user_id, payload)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
+@router.delete("/{user_id}")
+def delete_user(
+    user_id: int, 
+    db: Session = Depends(get_db)
+):
+    user = crud.delete_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User Deleted"}

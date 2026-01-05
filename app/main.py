@@ -7,7 +7,7 @@ from app.api.v1 import routers
 import app.models
 
 Base.metadata.create_all(bind=engine)
-
+    
 app = FastAPI(
     title="Invoice Backend",
     description="Invoice backend",
