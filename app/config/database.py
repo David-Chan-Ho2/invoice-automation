@@ -1,9 +1,11 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-from app.config import secrets
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
+from typing import Generator
+
+from app.config.config import settings
 
 engine = create_engine(
-    secrets.DATABASE_URL,
+    settings.DATABASE_URL,
     connect_args={"check_same_thread": False}
 )
 
@@ -14,3 +16,10 @@ SessionLocal = sessionmaker(
 )
 
 Base = declarative_base()
+
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
