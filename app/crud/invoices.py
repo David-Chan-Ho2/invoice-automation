@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from pydantic import ValidationError
 from app.models.invoices import Invoice
 from app.schemas.invoices import InvoiceCreate, InvoiceUpdate
+from uuid import UUID
+
 from app.crud import users
 
 def get_invoices(
@@ -16,7 +18,7 @@ def get_invoices_all(db: Session):
 
 def get_invoice(
     db: Session, 
-    invoice_id: int
+    invoice_id: UUID
 ):
     return db.query(Invoice).where(Invoice.id == invoice_id).first()
     
@@ -27,7 +29,7 @@ def create_invoice(
     user = users.get_user(db, payload.user_id)
     if not user:
         return None
-    
+
     invoice = Invoice(**payload.model_dump()) 
     try:
         db.add(invoice)
@@ -39,7 +41,7 @@ def create_invoice(
 
 def update_invoice(
     db: Session,
-    invoice_id: int,
+    invoice_id: UUID,
     payload: InvoiceUpdate,
 ):
     invoice = get_invoice(db, invoice_id)
@@ -54,7 +56,7 @@ def update_invoice(
 
 def delete_invoice(
     db: Session, 
-    invoice_id: int
+    invoice_id: UUID
 ):
     invoice = get_invoice(db, invoice_id)
     if invoice:

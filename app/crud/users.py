@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
+from uuid import UUID
 
 from app.models.users import User
 from app.schemas.users import UserCreate, UserUpdate
@@ -9,7 +10,7 @@ def get_users(db: Session):
 
 def get_user(
     db: Session,
-    user_id: int
+    user_id: UUID
 ):
     return db.query(User).filter(User.id == user_id).first()
 
@@ -39,7 +40,7 @@ def create_user(
 
 def update_user(
     db: Session,
-    user_id: int, 
+    user_id: UUID, 
     payload: UserUpdate, 
 ):
     user = get_user(db, user_id)
@@ -61,7 +62,7 @@ def update_user(
 
 def delete_user(
     db: Session, 
-    user_id: int
+    user_id: UUID
 ):
     user = get_user(db, user_id)
     if user:

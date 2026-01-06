@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from uuid import UUID
 
-from app.api.deps import get_db
+from app.config.database import get_db
 from app.schemas.users import UserCreate, UserResponse, UserUpdate
 import app.crud.users as crud
 
@@ -22,9 +23,19 @@ def create_user(
         raise HTTPException(status_code=404, detail="User name already exists")
     return user
 
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(
+    user_id: UUID,
+    db: Session = Depends(get_db)
+):
+    user = crud.get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User name already exists")
+    return user
+
 @router.patch("/{user_id}", response_model=UserResponse)
 def update_user(
-    user_id: int, 
+    user_id: UUID, 
     payload: UserUpdate, 
     db: Session = Depends(get_db)
 ):
@@ -35,7 +46,7 @@ def update_user(
 
 @router.delete("/{user_id}")
 def delete_user(
-    user_id: int, 
+    user_id: UUID,
     db: Session = Depends(get_db)
 ):
     user = crud.delete_user(db, user_id)
